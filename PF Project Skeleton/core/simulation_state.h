@@ -10,33 +10,41 @@
 // ----------------------------------------------------------------------------
 // GRID CONSTANTS
 // ----------------------------------------------------------------------------
-char tile;
-int xaixs , columns , rows , yaxis;
+int const MAX_columns = 100 ;
+int const MAX_rows = 100 ;
+
+
+
+
 // ----------------------------------------------------------------------------
 // TRAIN CONSTANTS
 // ----------------------------------------------------------------------------
 const int TrainID = 0;   // using this to show the id now as it is not in the usual train code i would have to start from 1 when i am taking the data form the level file
 const int TrainTICK = 1; // first value in the given data
-const int x = 2;         // second value in the given data
-const int y = 3;         // thired value in the given data
-const int direction = 4; // fourth value in the given data
-const int colour = 5;    // fifth value in the given data
+const int T_x = 2;         // second value in the given data
+const int T_y = 3;         // thired value in the given data
+const int T_direction = 4; // fourth value in the given data
+const int T_colour = 5;    // fifth value in the given data
 
 // ----------------------------------------------------------------------------
 // SWITCH CONSTANTS
 // ----------------------------------------------------------------------------
 
-    const int T_ID = 0; //using this to show the id now as it is not in the usual train code i would have to start from 1 when i am taking the data form the level file
-    const int TrainTICK = 1; // first value in the given data
-    const int x = 2; // second value in the given data
-    const int y = 3; // thired value in the given data
-    const int direction = 4; // fourth value in the given data
-    const int colour = 5; // fifth value in the given data
+int const S_name = 0;
+int const S_Mode = 1;
+int const S_init = 2;
+int const S_K_up = 3;
+int const S_K_right = 3;
+int const S_K_down = 4;
+int const S_K_left = 5;
+int const S_state0 = 6;
+int const S_state1 = 7;
+
+
 // ----------------------------------------------------------------------------
 // WEATHER CONSTANTS
 // ----------------------------------------------------------------------------
-
-const int weather ;
+int const weather;
 // ----------------------------------------------------------------------------
 // SIGNAL CONSTANTS
 // ----------------------------------------------------------------------------
