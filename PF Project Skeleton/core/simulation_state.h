@@ -38,8 +38,8 @@ const int T_properties = 9;
 // SWITCH CONSTANTS
 // ----------------------------------------------------------------------------
 
-int const S_name = 0;
-int const S_Mode = 1;
+
+int const S_Mode = 0;
 const int S_State = 1; // instead of state1 and state0 using this so that both can be checked  0 = straight and turn while 1 = left / right
 const int S_VisualType = 2;
 
@@ -52,7 +52,7 @@ int const S_K_left = 6;
 int const S_K_current_up = 7;
 int const S_K_current_right = 8;
 int const S_K_current_rdown = 9;
-int const S_K_current_rleft = 10;
+int const S_K_current_left = 10;
 
 int const S_properties = 11;
 int const MAX_switches = 26;
