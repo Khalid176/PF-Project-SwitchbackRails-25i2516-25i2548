@@ -39,7 +39,7 @@ const int T_properties = 9;
 // ----------------------------------------------------------------------------
 
 
-int const S_Mode = 0;
+int const S_Mode = 0; 
 const int S_State = 1; // instead of state1 and state0 using this so that both can be checked  0 = straight and turn while 1 = left / right
 const int S_VisualType = 2;
 
@@ -51,7 +51,7 @@ int const S_K_left = 6;
 // current state of the switches is being told by the variable below
 int const S_K_current_up = 7;
 int const S_K_current_right = 8;
-int const S_K_current_rdown = 9;
+int const S_K_current_down = 9;
 int const S_K_current_left = 10;
 
 int const S_properties = 11;
