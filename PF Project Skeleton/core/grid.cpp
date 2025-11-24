@@ -10,7 +10,17 @@
 // ----------------------------------------------------------------------------
 // Returns true if x,y are within bounds.
 // ----------------------------------------------------------------------------
-bool isInBounds() {
+bool isInBounds(int x, int y)
+{
+
+    if ((y < grid_rows && x >= 0) && (x < grid_columns && y >= 0))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -18,7 +28,21 @@ bool isInBounds() {
 // ----------------------------------------------------------------------------
 // Returns true if the tile can be traversed by trains.
 // ----------------------------------------------------------------------------
-bool isTrackTile() {
+bool isTrackTile(char c)
+{
+    
+    if ((c == '-') || (c == '|') || (c == '\\') || (c == '/') || (c == '=') || (c == '+'))
+    {
+        return true;
+    }
+    if (c >= 'A' && c <= 'Z')
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -26,7 +50,16 @@ bool isTrackTile() {
 // ----------------------------------------------------------------------------
 // Returns true if the tile is 'A'..'Z'.
 // ----------------------------------------------------------------------------
-bool isSwitchTile() {
+bool isSwitchTile(char c)
+{
+    if ((c >= 'A' && c <= 'Z') && (c != 'D' && c != 'S'))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -34,14 +67,15 @@ bool isSwitchTile() {
 // ----------------------------------------------------------------------------
 // Maps 'A'..'Z' to 0..25, else -1.
 // ----------------------------------------------------------------------------
-int getSwitchIndex(char c) {
-    if (c >= 'A' && c <= 'Z')
+int getSwitchIndex(char c)
+{
+    if (isSwitchTile(c)) // insted of making another chek using the above used function here
     {
-       return c - 'A';
+        return c - 'A';
     }
     else
     {
-        return -1; //error
+        return -1; // error if it is out of A to Z limit
     }
 }
 
@@ -50,7 +84,23 @@ int getSwitchIndex(char c) {
 // ----------------------------------------------------------------------------
 // Returns true if x,y is a spawn.
 // ----------------------------------------------------------------------------
-bool isSpawnPoint() {
+bool isSpawnPoint(int x, int y)
+{
+
+
+    if (!isInBounds(x , y))
+    {
+        return false;
+    }
+    
+    if (grid[y][x] == 'S')
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -58,7 +108,21 @@ bool isSpawnPoint() {
 // ----------------------------------------------------------------------------
 // Returns true if x,y is a destination.
 // ----------------------------------------------------------------------------
-bool isDestinationPoint() {
+bool isDestinationPoint(int x, int y)
+{
+    if (!isInBounds(x , y))
+    {
+        return false;
+    }
+
+    if (grid[y][x] == 'D')
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -66,5 +130,26 @@ bool isDestinationPoint() {
 // ----------------------------------------------------------------------------
 // Returns true if toggled successfully.
 // ----------------------------------------------------------------------------
-bool toggleSafetyTile() {
+bool toggleSafetyTile(int x, int y)
+{
+    if (!isInBounds(x , y))
+    {
+        return false;
+    }
+    char current = grid[y][x];
+
+    if (current == '-')
+    {
+        grid[y][x] = '=';
+        return true;
+    }
+    else if (current == '=')
+    {
+        grid[y][x] = '-';
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

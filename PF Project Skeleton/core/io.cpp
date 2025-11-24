@@ -261,6 +261,21 @@ bool loadLevelFile(string filename)
 // ----------------------------------------------------------------------------
 void initializeLogFiles()
 {
+    ofstream trace("traintrace.csv");
+    trace<<"Tick,TrainID,x,y,Direction,State\n";
+    trace.close();
+
+    ofstream Switchstate("switches.csv");
+    trace<<"Tick,Switch,Mode,State";
+    Switchstate.close();
+
+    ofstream signals("signals.csv");
+    signals<<"Tick,Switch,Scolor";
+    signals.close();
+
+    ofstream metrics("metrics.txt");
+    // metrics<<"";
+    metrics.out;
 }
 
 // ----------------------------------------------------------------------------
@@ -270,6 +285,8 @@ void initializeLogFiles()
 // ----------------------------------------------------------------------------
 void logTrainTrace()
 {
+    ofstream trace("traintrace.csv",ios::app);
+    trace.close();
 }
 
 // ----------------------------------------------------------------------------
@@ -279,6 +296,8 @@ void logTrainTrace()
 // ----------------------------------------------------------------------------
 void logSwitchState()
 {
+    ofstream Switchstate("switches.csv",ios::app);
+    Switchstate.close();
 }
 
 // ----------------------------------------------------------------------------
@@ -288,6 +307,8 @@ void logSwitchState()
 // ----------------------------------------------------------------------------
 void logSignalState()
 {
+    ofstream signals("switches.csv",ios::app);
+    signals.close();
 }
 
 // ----------------------------------------------------------------------------
@@ -297,4 +318,7 @@ void logSignalState()
 // ----------------------------------------------------------------------------
 void writeMetrics()
 {
+     ofstream metrics("metrics.txt",ios::app);
+    // metrics<<"";
+    metrics.out;
 }
