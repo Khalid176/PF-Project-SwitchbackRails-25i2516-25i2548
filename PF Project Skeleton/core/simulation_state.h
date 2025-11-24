@@ -16,7 +16,7 @@ int const MAX_rows = 100;
 // ----------------------------------------------------------------------------
 // TRAIN CONSTANTS
 // ----------------------------------------------------------------------------
-const int Trains_max = 100;
+const int Trains_max = 10000;
 const int TrainID = 0;     // using this to show the id now as it is not in the usual train code i would have to start from 1 when i am taking the data form the level file
 const int TrainTICK = 1;   // first value in the given data
 const int T_x = 2;         // second value in the given data
