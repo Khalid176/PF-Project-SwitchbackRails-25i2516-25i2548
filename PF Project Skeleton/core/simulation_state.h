@@ -48,13 +48,9 @@ int const S_K_right = 4;
 int const S_K_down = 5;
 int const S_K_left = 6;
 
-// current state of the switches is being told by the variable below
-int const S_K_current_up = 7;
-int const S_K_current_right = 8;
-int const S_K_current_down = 9;
-int const S_K_current_left = 10;
 
-int const S_properties = 11;
+
+int const S_properties = 7;
 int const MAX_switches = 26;
 
 // ----------------------------------------------------------------------------
