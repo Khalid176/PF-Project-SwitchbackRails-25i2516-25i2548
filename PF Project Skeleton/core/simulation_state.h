@@ -55,8 +55,9 @@ int const S_K_current_down = 9;
 int const S_K_current_left = 10;
 
 int const S_K_current_golbal = 11;
+int const S_K_golbal = 12;
 
-int const S_properties = 12;
+int const S_properties = 13;
 int const MAX_switches = 26;
 
 // ----------------------------------------------------------------------------

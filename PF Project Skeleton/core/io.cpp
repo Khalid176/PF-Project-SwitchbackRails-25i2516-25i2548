@@ -143,7 +143,7 @@ bool loadLevelFile(string filename)
         }
         else if (key == "SWITCHES:" || FoundSwitchesInMap)
         {
-            FoundSwitchesInMap = false; // doing this to make sure the bool doesnot result in it begin always true
+            FoundSwitchesInMap = false; // doing this to make sure the bool doesnot result in it being always true
 
             while (file >> key)
             {
@@ -211,6 +211,8 @@ bool loadLevelFile(string filename)
                     switch_data[index][S_K_right] = k_right;
                     switch_data[index][S_K_down] = k_down;
                     switch_data[index][S_K_left] = k_left;
+
+                    switch_data[index][S_K_golbal] = k_up; // since the value would be same no matter what we use it would not effect the out come much
 
                     if (lable0 == "STRAIGHT")
                     {
