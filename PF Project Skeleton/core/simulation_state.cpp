@@ -89,4 +89,9 @@ void initializeSimulationState()
             switch_data[i][j] = 0;
         }
     }
+    for (int i = 0; i < MAX_switches; i++)
+    {
+        switch_flip_queue[i] = 0;
+    }
+    
 }
