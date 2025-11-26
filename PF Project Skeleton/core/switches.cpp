@@ -7,27 +7,46 @@
 // SWITCHES.CPP - Switch management
 // ============================================================================
 
- static bool temporary_queue [MAX_switches]; // as said in the instruction manual that we cannot just update a switch on the spot we would update the switches after a tick has passed this array i am creating would be responsiable for hold ing all the data pf the switches that have been updateed
+static bool temporary_queue[MAX_switches]; // as said in the instruction manual that we cannot just update a switch on the spot we would update the switches after a tick has passed this array i am creating would be responsiable for hold ing all the data pf the switches that have been updateed
 // ----------------------------------------------------------------------------
 // UPDATE SWITCH COUNTERS
 // ----------------------------------------------------------------------------
 // Increment counters for trains entering switches.
 // ----------------------------------------------------------------------------
-void updateSwitchCounters(int switch_index ,int train_dir) {
+void updateSwitchCounters(int switch_index, int train_dir)
+{
 
-    if (switch_index < 0 || switch_index > MAX_switches)
+    if (switch_index < 0 || switch_index >= MAX_switches) // ADDING WHIS CHECK IN EACH BOX TO MAKE SURE THAT THE VALUE THAT IS PROVIDED IS IN BETWEEN GIVE LIMITS I.E IS FROM A TO Z
     {
-        return ; // idk why return 0 is not working Faseeh if you are readin this take a look
+        return; // idk why return 0 is not working Faseeh if you are readin this take a look
     }
 
-    int switch_mode = switch_data [switch_index][S_Mode];  // already used the if statments to make sure the string was converted to the need 0 1 bit formate
+    int switch_mode = switch_data[switch_index][S_Mode]; // already used the if statments to make sure the string was converted to the need 0 1 bit formate
 
     if (switch_mode == 1)
     {
-        switch_data [switch_index][S_K_current_up] ++ ;          
+        switch_data[switch_index][S_K_golbal]++;
     }
-    
-    
+    else
+    {
+        //  as per given instruction 0 = up direction of the train , 2 = down , 1 = right , 3 = left ;
+        if (train_dir == 0)
+        {
+            switch_data[switch_index][S_K_current_up] = switch_data[switch_index][S_K_current_up] + 1;
+        }
+        else if (train_dir == 1)
+        {
+            switch_data[switch_index][S_K_current_right] = switch_data[switch_index][S_K_current_right] + 1;
+        }
+        else if (train_dir == 2)
+        {
+            switch_data[switch_index][S_K_current_down] = switch_data[switch_index][S_K_current_down] + 1;
+        }
+        else if (train_dir == 3)
+        {
+            switch_data[switch_index][S_K_current_left] = switch_data[switch_index][S_K_current_left] + 1;
+        }
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -35,7 +54,65 @@ void updateSwitchCounters(int switch_index ,int train_dir) {
 // ----------------------------------------------------------------------------
 // Queue flips when counters hit K.
 // ----------------------------------------------------------------------------
-void queueSwitchFlips() {
+void queueSwitchFlips()
+{
+    for (int i = 0; i < MAX_switches; i++)
+    {
+        switch_flip_queue[i] = 0; /// reseting the queue this would make sure that after each tick the values of the switches in the queue goes back to zero
+    }
+    // isoaddipowidopaiwpdiapwidpaipwoidpiawpdipawipdiwipdoiwpoidpoaiwpodipoaiwpdipawipdiapwidpaiwopidpoawipodiapwidpoiawpoidpoawipodipowipodiapwidpiwpo
+
+    for (int i = 0; i < MAX_switches; i++)
+    {
+        int flip_checker = 0;
+        int mode = switch_data[i][S_Mode];
+        if (mode == 1)
+        {
+            int current_value = switch_data[i][S_K_current_golbal];
+            int limit = switch_data[i][S_K_golbal];
+            if ((current_value >= limit) && limit > 0)
+            {
+                flip_checker = 67;
+            }
+        }
+        else if (mode == 0) // for per_direction
+        {
+            int current_value_0 = switch_data[i][S_K_current_up];
+            int limit0 = switch_data[i][S_K_up];
+
+            int current_value_1= switch_data[i][S_K_current_right];
+            int limit1 = switch_data[i][S_K_right];
+
+            int current_value_2 = switch_data[i][S_K_current_down];
+            int limit2 = switch_data[i][S_K_down];
+
+            int current_value_3 = switch_data[i][S_K_current_left];
+            int limit3 = switch_data[i][S_K_left];
+
+            if ((current_value_0 >= limit0) && limit0 > 0)
+            {
+                flip_checker = 67;
+            }
+            if ((current_value_1 >= limit1) && limit1 > 0)
+            {
+                flip_checker = 67;
+            }
+            if ((current_value_2 >= limit2) && limit2 > 0)
+            {
+                flip_checker = 67;
+            }
+            if ((current_value_3 >= limit3) && limit3 > 0)
+            {
+                flip_checker = 67;
+            }
+        }
+        if (flip_checker == 67)
+        {
+            switch_flip_queue[i] = 1;
+        }
+        
+        
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -43,7 +120,8 @@ void queueSwitchFlips() {
 // ----------------------------------------------------------------------------
 // Apply queued flips after movement.
 // ----------------------------------------------------------------------------
-void applyDeferredFlips() {
+void applyDeferredFlips()
+{
 }
 
 // ----------------------------------------------------------------------------
@@ -51,7 +129,8 @@ void applyDeferredFlips() {
 // ----------------------------------------------------------------------------
 // Update signal colors for switches.
 // ----------------------------------------------------------------------------
-void updateSignalLights() {
+void updateSignalLights(int switch_index, int train_direction)
+{
 }
 
 // ----------------------------------------------------------------------------
@@ -59,7 +138,22 @@ void updateSignalLights() {
 // ----------------------------------------------------------------------------
 // Manually toggle a switch state.
 // ----------------------------------------------------------------------------
-void toggleSwitchState() {
+void toggleSwitchState(int switch_index)
+{
+    if (switch_index < 0 || switch_index >= MAX_switches)
+    {
+        return; // idk why return 0 is not working Faseeh if you are readin this take a look
+    }
+    int currnet_Switch_State = switch_data[switch_index][S_State];
+    if (currnet_Switch_State == 1)
+    {
+        currnet_Switch_State = 0;
+    }
+    else if (currnet_Switch_State = 0)
+    {
+        currnet_Switch_State = 1;
+    }
+    switch_data[switch_index][S_State] = currnet_Switch_State;
 }
 
 // ----------------------------------------------------------------------------
@@ -67,5 +161,17 @@ void toggleSwitchState() {
 // ----------------------------------------------------------------------------
 // Return the state for a given direction.
 // ----------------------------------------------------------------------------
-int getSwitchStateForDirection() {
+int getSwitchStateForDirection(int switch_index)
+{
+
+    if (switch_index < 0 || switch_index >= MAX_switches)
+    {
+        return; // idk why return 0 is not working Faseeh if you are readin this take a look
+    }
+
+    int temporary;
+
+    temporary = switch_data[switch_index][S_State];
+
+    return temporary;
 }
