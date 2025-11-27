@@ -29,7 +29,7 @@ void simulateOneTick() {
     moveAllTrains();
     applyDeferredFlips();
     checkArrivals();
-
+    
 
 
     logTrainTrace();
