@@ -7,8 +7,6 @@
 // SWITCHES.CPP - Switch management
 // ============================================================================
 
-static bool temporary_queue[MAX_switches]; // as said in the instruction manual that we cannot just update a switch on the spot we would update the switches after a tick has passed this array i am creating would be responsiable for hold ing all the data pf the switches that have been updateed
-// ----------------------------------------------------------------------------
 // UPDATE SWITCH COUNTERS
 // ----------------------------------------------------------------------------
 // Increment counters for trains entering switches.
@@ -122,6 +120,32 @@ void queueSwitchFlips()
 // ----------------------------------------------------------------------------
 void applyDeferredFlips()
 {
+    for (int i = 0; i < MAX_switches; i++)
+    {
+        if (switch_flip_queue[i] == 1)
+        {
+            int current_state = switch_data[i][S_State] ;
+            if (  current_state == 0)
+            {
+                switch_data[i][S_State] = 1;
+            }
+            else
+            {
+                switch_data[i][S_State] = 0;
+            }
+
+            switch_data[i][S_K_current_up] = 0;
+            switch_data[i][S_K_current_right] = 0;
+            switch_data[i][S_K_current_down] = 0;
+            switch_data[i][S_K_current_left] = 0;
+            
+            total_switch_flips ++;
+
+            switch_flip_queue [i] = 0;
+        }
+        
+    }
+    
 }
 
 // ----------------------------------------------------------------------------
