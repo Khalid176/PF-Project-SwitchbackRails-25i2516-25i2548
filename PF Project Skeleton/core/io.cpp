@@ -53,7 +53,7 @@ bool loadLevelFile(string filename)
         else if (key == "SEED:")
         {
             file >> seed;
-            srand(seed);
+            
         }
         else if (key == "WEATHER:")
         {
@@ -252,6 +252,7 @@ bool loadLevelFile(string filename)
             }
         }
     }
+
     file.close();
     return true;
 }
@@ -288,7 +289,14 @@ void initializeLogFiles()
 void logTrainTrace()
 {
     ofstream trace("traintrace.csv",ios::app);
-    trace.close();
+    if(!trace.is_open()){
+        cout<<"Error during loading of file";
+        return ;
+    }
+    else{
+        for(int i=0;i<Number_Of_Trains;i++)
+     trace<<trains_data[i][TrainTICK]<<","<<trains_data[i][TrainID]<<","<<trains_data[i][T_x]<<","<<trains_data[i][T_y]<<","<<trains_data[i][T_direction]<<","<<trains_data[i][T_status];
+    trace.close();}
 }
 
 // ----------------------------------------------------------------------------
@@ -299,7 +307,15 @@ void logTrainTrace()
 void logSwitchState()
 {
     ofstream Switchstate("switches.csv",ios::app);
+    if(!Switchstate.is_open()){
+        cout<<"Error during file loading";
+        return ;
+    }
+    else {
+        for(int i=0;i<Number_Of_Trains;i++)
+    Switchstate<<trains_data[i][TrainTICK]<<","<<char('A'+i)<<","<<switch_data[i][S_Mode]<<","<<switch_data[i][S_State];
     Switchstate.close();
+}
 }
 
 // ----------------------------------------------------------------------------
@@ -310,7 +326,15 @@ void logSwitchState()
 void logSignalState()
 {
     ofstream signals("switches.csv",ios::app);
-    signals.close();
+      if(!signals.is_open()){
+        cout<<"Error during loading of file";
+        return ;
+    }
+    else{
+        for(int i=0;i<Number_Of_Trains;i++)
+        signals<<trains_data[i][TrainTICK]<<","<<trains_data[i][TrainID]<<","<<char('A'+i)<<","<<trains_data[i][T_colour];
+        signals.close();}
+    
 }
 
 // ----------------------------------------------------------------------------

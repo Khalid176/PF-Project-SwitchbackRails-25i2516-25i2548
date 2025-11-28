@@ -15,6 +15,7 @@
 // ----------------------------------------------------------------------------
 
 void initializeSimulation() {
+ srand(seed);
 }
 
 // ----------------------------------------------------------------------------
@@ -22,6 +23,20 @@ void initializeSimulation() {
 // ----------------------------------------------------------------------------
 
 void simulateOneTick() {
+    spawnTrainsForTick();
+    determineAllRoutes();
+    queueSwitchFlips();
+    moveAllTrains();
+    applyDeferredFlips();
+    checkArrivals();
+
+
+
+    logTrainTrace();
+    logSignalState();
+    logSwitchState();
+
+    tick++;
 }
 
 // ----------------------------------------------------------------------------
@@ -29,4 +44,10 @@ void simulateOneTick() {
 // ----------------------------------------------------------------------------
 
 bool isSimulationComplete() {
+    if(trains_arrived+trains_crashed==Number_Of_Trains)
+    {
+        return true;
+    }
+    else
+    return false;
 }
