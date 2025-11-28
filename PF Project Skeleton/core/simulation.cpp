@@ -23,9 +23,14 @@ void initializeSimulation() {
 // ----------------------------------------------------------------------------
 
 void simulateOneTick() {
+
+    updateEmergencyHalt();
     spawnTrainsForTick();
+
     determineAllRoutes();
+    detectCollisions();
     queueSwitchFlips();
+    
     moveAllTrains();
     applyDeferredFlips();
     checkArrivals();
