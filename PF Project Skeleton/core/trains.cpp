@@ -18,6 +18,29 @@
 // Activate trains scheduled for this tick.
 // ----------------------------------------------------------------------------
 void spawnTrainsForTick() {
+    for(int i=0;i<Number_Of_Trains;i++)
+    {
+        int spawnpoint_x=trains_data[i][T_x];
+        int spawnpoint_y=trains_data[i][T_y];
+        bool blocked_path=false;
+        for(int j=0;j<Number_Of_Trains;j++)
+        {
+            if(trains_data[i][T_status]==1)
+            {
+                if(spawnpoint_x==trains_data[j][T_x]&&spawnpoint_y==trains_data[j][T_x])
+                {
+                    blocked_path=true; 
+                    break; 
+                }
+
+            }
+
+        } 
+        if(blocked_path==false)
+        {
+            trains_data[i][T_status]=1;
+        }   
+    }
 }
 
 // ----------------------------------------------------------------------------
