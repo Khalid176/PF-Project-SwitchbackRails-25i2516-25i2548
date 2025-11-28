@@ -244,8 +244,8 @@ bool loadLevelFile(string filename)
 
                     //  For now we havent calculated the optimal destinations points for the train so using some place holders
 
-                    trains_data[i][T_des_X] = -1;
-                    trains_data[i][T_des_Y] = -1;
+                    trains_data[i][T_destination_X] = -1;
+                    trains_data[i][T_destination_Y] = -1;
 
                     Number_Of_Trains++;
                 }
