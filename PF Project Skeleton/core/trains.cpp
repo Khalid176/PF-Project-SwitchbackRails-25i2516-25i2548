@@ -39,6 +39,7 @@ void spawnTrainsForTick() {
         if(blocked_path==false)
         {
             trains_data[i][T_status]=1;
+            
         }   
     }
 }
