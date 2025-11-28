@@ -25,8 +25,8 @@ const int T_direction = 4; // fourth value in the given data
 const int T_colour = 5;    // fifth value in the given data
 
 // now taking destenation points to know where train needs to go so we can the use manhatan formula to evaluate the preority system
-const int T_des_X = 6; // sixth value int would be caluculated
-const int T_des_Y = 7;
+const int T_destination_X = 6; // sixth value int would be caluculated
+const int T_destination_Y = 7;
 
 const int T_status = 8; // TO check which trinas are active and which are not
 

@@ -23,7 +23,7 @@ void updateSwitchCounters(int switch_index, int train_dir)
 
     if (switch_mode == 1)
     {
-        switch_data[switch_index][S_K_golbal]++;
+        switch_data[switch_index][S_K_current_golbal]++;
     }
     else
     {
@@ -138,6 +138,8 @@ void applyDeferredFlips()
             switch_data[i][S_K_current_right] = 0;
             switch_data[i][S_K_current_down] = 0;
             switch_data[i][S_K_current_left] = 0;
+
+            switch_data[i][S_K_current_golbal] = 0;
             
             total_switch_flips ++;
 
@@ -173,7 +175,7 @@ void toggleSwitchState(int switch_index)
     {
         currnet_Switch_State = 0;
     }
-    else if (currnet_Switch_State = 0)
+    else if (currnet_Switch_State == 0)
     {
         currnet_Switch_State = 1;
     }
