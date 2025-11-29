@@ -24,6 +24,7 @@ int trains_data[Trains_max][T_properties];
 // ----------------------------------------------------------------------------
 
 int switch_data[MAX_switches][S_properties];
+int switch_flip_queue[MAX_switches];
 
 // ----------------------------------------------------------------------------
 // SPAWN AND DESTINATION POINTS

@@ -53,7 +53,6 @@ bool loadLevelFile(string filename)
         else if (key == "SEED:")
         {
             file >> seed;
-            
         }
         else if (key == "WEATHER:")
         {
@@ -151,9 +150,9 @@ bool loadLevelFile(string filename)
                 bool isTrainHeader = true;
                 if ((int)key.length() < 6)
                 {
-                     isTrainHeader = false;
+                    isTrainHeader = false;
                 }
-                   
+
                 else
                 {
                     if (key[0] != 'T')
@@ -223,7 +222,6 @@ bool loadLevelFile(string filename)
                         switch_data[index][S_VisualType] = 1;
                     }
                 }
-                
             }
         }
         if (key == "TRAINS:")                  // removing the else one because if the above loop breaks at the heading trains we would directly catch it here and would go in next segmant while else if would not allow us to do so
@@ -265,20 +263,20 @@ bool loadLevelFile(string filename)
 void initializeLogFiles()
 {
     ofstream trace("traintrace.csv");
-    trace<<"Tick,TrainID,x,y,Direction,State\n";
+    trace << "Tick,TrainID,x,y,Direction,State\n";
     trace.close();
 
     ofstream Switchstate("switches.csv");
-    trace<<"Tick,Switch,Mode,State";
+    trace << "Tick,Switch,Mode,State";
     Switchstate.close();
 
     ofstream signals("signals.csv");
-    signals<<"Tick,Switch,Scolor";
+    signals << "Tick,Switch,Scolor";
     signals.close();
 
     ofstream metrics("metrics.txt");
     // metrics<<"";
-    metrics.out;
+    metrics.close();
 }
 
 // ----------------------------------------------------------------------------
@@ -288,15 +286,21 @@ void initializeLogFiles()
 // ----------------------------------------------------------------------------
 void logTrainTrace()
 {
-    ofstream trace("traintrace.csv",ios::app);
-    if(!trace.is_open()){
-        cout<<"Error during loading of file";
-        return ;
+    ofstream trace("out/traintrace.csv", ios::app);
+    if (!trace.is_open())
+    {
+        cout << "Error during loading of file";
+        return;
     }
-    else{
-        for(int i=0;i<Number_Of_Trains;i++)
-     trace<<trains_data[i][TrainTICK]<<","<<trains_data[i][TrainID]<<","<<trains_data[i][T_x]<<","<<trains_data[i][T_y]<<","<<trains_data[i][T_direction]<<","<<trains_data[i][T_status];
-    trace.close();}
+    else
+    {
+        for (int i = 0; i < Number_Of_Trains; i++)
+            if (trains_data[i][T_status] > 0)
+            {
+                trace << tick << "," << trains_data[i][TrainID] << "," << trains_data[i][T_x] << "," << trains_data[i][T_y] << "," << trains_data[i][T_direction] << "," << trains_data[i][T_status] <<"\n";
+            }
+    }
+    trace.close();
 }
 
 // ----------------------------------------------------------------------------
@@ -306,16 +310,24 @@ void logTrainTrace()
 // ----------------------------------------------------------------------------
 void logSwitchState()
 {
-    ofstream Switchstate("switches.csv",ios::app);
-    if(!Switchstate.is_open()){
-        cout<<"Error during file loading";
-        return ;
+    ofstream Switchstate("out/switches.csv", ios::app);
+    if (!Switchstate.is_open())
+    {
+        cout << "Error during file loading";
+        return;
     }
-    else {
-        for(int i=0;i<Number_Of_Trains;i++)
-    Switchstate<<trains_data[i][TrainTICK]<<","<<char('A'+i)<<","<<switch_data[i][S_Mode]<<","<<switch_data[i][S_State];
+    else
+    {
+
+        for (int i = 0; i < MAX_switches; i++)
+        {
+            if (switch_data[i][S_K_up] > 0 || switch_data[i][S_Mode] == 1)
+            {
+                Switchstate << tick << "," << char('A' + i) << "," << switch_data[i][S_Mode] << "," << switch_data[i][S_State] <<"\n";
+            }
+        }
+    }
     Switchstate.close();
-}
 }
 
 // ----------------------------------------------------------------------------
@@ -325,16 +337,26 @@ void logSwitchState()
 // ----------------------------------------------------------------------------
 void logSignalState()
 {
-    ofstream signals("switches.csv",ios::app);
-      if(!signals.is_open()){
-        cout<<"Error during loading of file";
-        return ;
+    ofstream signals("out/signals.csv", ios::app);
+    if (!signals.is_open())
+    {
+        cout << "Error during loading of file";
+        return;
     }
-    else{
-        for(int i=0;i<Number_Of_Trains;i++)
-        signals<<trains_data[i][TrainTICK]<<","<<trains_data[i][TrainID]<<","<<char('A'+i)<<","<<trains_data[i][T_colour];
-        signals.close();}
-    
+    else
+    {
+        for (int i = 0; i < MAX_switches; i++)
+        {
+            if (switch_data[i][S_K_up] > 0 || switch_data[i][S_Mode] == 1)
+            {
+                int colour = 0;
+
+                signals << tick << "," << char ('A' + i) << "," << colour <<"\n";
+            }
+            
+        }
+    }
+    signals.close();
 }
 
 // ----------------------------------------------------------------------------
@@ -344,7 +366,14 @@ void logSignalState()
 // ----------------------------------------------------------------------------
 void writeMetrics()
 {
-     ofstream metrics("metrics.txt",ios::app);
-    // metrics<<"";
-    metrics.out;
+
+    ofstream metrics("out/etrics.txt", ios::app);
+    if (metrics.is_open())
+    {
+        metrics << "Total Trains: " << Number_Of_Trains << "\n";
+        metrics << "Arrived: " << trains_arrived << "\n";
+        metrics << "Crashed: " << trains_crashed << "\n";
+        metrics << "Flips: " << total_switch_flips << "\n";
+        metrics.close();
+    }
 }

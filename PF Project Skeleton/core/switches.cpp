@@ -78,7 +78,7 @@ void queueSwitchFlips()
             int current_value_0 = switch_data[i][S_K_current_up];
             int limit0 = switch_data[i][S_K_up];
 
-            int current_value_1= switch_data[i][S_K_current_right];
+            int current_value_1 = switch_data[i][S_K_current_right];
             int limit1 = switch_data[i][S_K_right];
 
             int current_value_2 = switch_data[i][S_K_current_down];
@@ -108,8 +108,6 @@ void queueSwitchFlips()
         {
             switch_flip_queue[i] = 1;
         }
-        
-        
     }
 }
 
@@ -124,8 +122,8 @@ void applyDeferredFlips()
     {
         if (switch_flip_queue[i] == 1)
         {
-            int current_state = switch_data[i][S_State] ;
-            if (  current_state == 0)
+            int current_state = switch_data[i][S_State];
+            if (current_state == 0)
             {
                 switch_data[i][S_State] = 1;
             }
@@ -140,14 +138,12 @@ void applyDeferredFlips()
             switch_data[i][S_K_current_left] = 0;
 
             switch_data[i][S_K_current_golbal] = 0;
-            
-            total_switch_flips ++;
 
-            switch_flip_queue [i] = 0;
+            total_switch_flips++;
+
+            switch_flip_queue[i] = 0;
         }
-        
     }
-    
 }
 
 // ----------------------------------------------------------------------------
@@ -155,8 +151,65 @@ void applyDeferredFlips()
 // ----------------------------------------------------------------------------
 // Update signal colors for switches.
 // ----------------------------------------------------------------------------
-void updateSignalLights(int switch_index, int train_direction)
+void updateSignalLights()
 {
+    for (int i = 0; i < MAX_switches; i++)
+    {
+        if (switch_data[i][S_K_up] > 0 || switch_data[i][S_Mode] == 1)
+        {
+            switch_data[i][S_signal] = Signal_Green;
+        }
+    }
+    for (int r = 0; r < grid_rows; r++)
+    {
+        for (int c = 0; c < grid_columns; c++)
+        {
+            char tile = grid[r][c];
+            if (isSwitchTile(tile))
+            {
+                int index = getSwitchIndex(tile);
+
+                // using distance logic to check the distance to make the the signal red ot yellow
+                for (int temp = 0; temp < Number_Of_Trains; temp++)
+                {
+                    if (trains_data[temp][T_status] == 1)
+                    {
+                        int train_X = trains_data[temp][T_x];
+                        int train_Y = trains_data[temp][T_y];
+
+                        // manhatan distance
+
+                        int a = train_X - c;
+                        int b = train_Y - r;
+
+                        if (a < 0)
+                        {
+                            a = a * -1;
+                        }
+                        if (b < 0)
+                        {
+                            b = b * -1;
+                        }
+
+                        int distance = a + b;
+
+                        if (distance <= 1)
+                        {
+                            switch_data[index][S_signal] = Signal_Red;
+                        }
+                        else if (distance == 2)
+                        {
+                            if (switch_data[index][S_signal] != Signal_Red)
+                            {
+
+                                switch_data[index][S_signal] = Signal_Yellow;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -192,7 +245,7 @@ int getSwitchStateForDirection(int switch_index)
 
     if (switch_index < 0 || switch_index >= MAX_switches)
     {
-        return; // idk why return 0 is not working Faseeh if you are readin this take a look
+        return 0;
     }
 
     int temporary;

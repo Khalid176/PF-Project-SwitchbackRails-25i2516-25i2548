@@ -3,6 +3,8 @@
 #include "grid.h"
 #include "switches.h"
 #include <cstdlib>
+#include <iostream>
+using namespace std;
 
 // ============================================================================
 // TRAINS.CPP - Train logic
@@ -22,24 +24,44 @@ void spawnTrainsForTick()
 {
     for (int i = 0; i < Number_Of_Trains; i++)
     {
-        if (trains_data[i][T_status] == 0) // pending
+        if (trains_data[i][T_status] == 0) // Pending
         {
-            if (trains_data[i][TrainTICK] <= tick)
+            if (tick >= trains_data[i][TrainTICK])
             {
                 int x = trains_data[i][T_x];
                 int y = trains_data[i][T_y];
 
-                int alreadythere = 0;
+                
+                if (!isTrackTile(grid[y][x])) {
+                   
+                    
+                  
+                    if (y > 0 && isTrackTile(grid[y-1][x])) {
+                        y--;
+                      
+                    } 
+                  
+                    else if (y < grid_rows - 1 && isTrackTile(grid[y+1][x])) {
+                        y++;
+                    }
+                    
+                    trains_data[i][T_y] = y;
+                }
+                // ---------------------------------------------------------
 
-                for (int i = 0; i < Number_Of_Trains; i++)
+                bool blocked = false;
+                for (int j = 0; j < Number_Of_Trains; j++)
                 {
-                    if ((trains_data[i][T_status] == 1) && (trains_data[i][T_x] == x) && (trains_data[i][T_y] == y))
+                    if (trains_data[j][T_status] == 1)
                     {
-                        alreadythere = 1;
-                        break;
+                        if (x == trains_data[j][T_x] && y == trains_data[j][T_y])
+                        {
+                            blocked = true;
+                            break;
+                        }
                     }
                 }
-                if (!alreadythere)
+                if (!blocked)
                 {
                     trains_data[i][T_status] = 1;
                 }
@@ -61,7 +83,7 @@ bool determineNextPosition(int train_index, int &outX, int &outY, int &outDir)
 
     char tile = grid[y][x];
 
-    outDir = getNextDirection(direction , tile , train_index);
+    outDir = getNextDirection(direction, tile, train_index);
     outX = x;
     outY = y;
     if (outDir == 0)
@@ -267,7 +289,7 @@ int getSmartDirectionAtCrossing(int index, int current_direction)
     {
         return 3;
     }
-    if (Y > current_X && current_direction != 0)
+    if (Y > current_Y && current_direction != 0)
     {
         return 2;
     }
@@ -310,7 +332,16 @@ void determineAllRoutes()
             }
             else
             {
-                trains_data[i][T_status] = 3;
+                // 🚨 DEBUGGING: WHY DID WE CRASH? 🚨
+                int curX = trains_data[i][T_x];
+                int curY = trains_data[i][T_y];
+                cout << "❌ CRASH! Train " << i << " at (" << curX << "," << curY << ")" << endl;
+                cout << "   Standing on Tile: [" << grid[curY][curX] << "] (ASCII: " << (int)grid[curY][curX] << ")" << endl;
+                cout << "   Tried to move to: (" << x1 << "," << y1 << ")" << endl;
+                cout << "   Target Tile: [" << grid[y1][x1] << "]" << endl;
+                // ----------------------------------------
+
+                trains_data[i][T_status] = 3; // Set status to Crashed
                 trains_crashed++;
             }
         }
@@ -361,7 +392,18 @@ void detectCollisions()
             {
                 continue;
             }
+
+            bool crash = false;
+
             if ((moves[train1][0] == moves[train2][0]) && moves[train1][1] == moves[train2][1])
+            {
+                crash = true;
+            }
+            if (moves[train1][0] == trains_data[train2][T_x] && moves[train1][1] == trains_data[train2][T_y] && moves[train2][0] == trains_data[train1][T_x] && moves[train2][1] == trains_data[train1][T_y])
+            {
+                crash = true;
+            }
+            if (crash)
             {
                 //  if this if condition is true a colission can occor now calculate the distance for train 1 and train 2
                 int distance1 = 0;
@@ -455,7 +497,7 @@ void checkArrivals()
 
             if (grid[y][x] == 'D')
             {
-                int x = trains_data[i][T_status] = 2; // arived as 'D' is the destination block
+                trains_data[i][T_status] = 2; // arived as 'D' is the destination block
                 trains_arrived++;
             }
         }
