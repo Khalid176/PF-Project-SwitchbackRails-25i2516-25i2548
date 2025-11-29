@@ -366,9 +366,8 @@ void logSignalState()
 // ----------------------------------------------------------------------------
 void writeMetrics()
 {
-<<<<<<< Updated upstream
 
-    ofstream metrics("out/etrics.txt", ios::app);
+    ofstream metrics("out/metrics.txt", ios::app);
     if (metrics.is_open())
     {
         metrics << "Total Trains: " << Number_Of_Trains << "\n";
@@ -377,9 +376,4 @@ void writeMetrics()
         metrics << "Flips: " << total_switch_flips << "\n";
         metrics.close();
     }
-=======
-     ofstream metrics("metrics.txt",ios::app);
-    // metrics<<"";
-    metrics.close();
->>>>>>> Stashed changes
 }

@@ -5,6 +5,7 @@
 #include "../core/simulation_state.h"
 #include "../core/simulation.h"
 #include "../core/io.h"
+using namespace std;
 
 
 // ============================================================================
@@ -24,42 +25,42 @@
 // ----------------------------------------------------------------------------
 int main(int fileparts,char* filename[]) {
     
-    cout<<"****************************************************************"<<endl;
-    cout<<"               SWITCH BACK RAILS IN THE CRIB YOO!                 "<<endl;
-    cout<<"****************************************************************"<<endl;
+    std::cout<<"****************************************************************"<<endl;
+    std::cout<<"               SWITCH BACK RAILS IN THE CRIB YOO!                 "<<endl;
+    std::cout<<"****************************************************************"<<endl;
 
     if(fileparts<2)
     {
-        cout<<"Enter path name in this format: ,/switchback_rails"
-        cout<<"Wrong path entered!"<<endl;
+        std::cout<<"Enter path name in this format: ,/switchback_rails"<<endl;
+        std::cout<<"Wrong path entered!"<<endl;
         return 1;
     }
-    string level=filename[1];
-    cout<<"Loading Files";
+    std::string level=filename[1];
+    std::cout<<"Loading Files";
     for(int i = 1; i <= 5; i++) {
         for(int j = 0; j < i; j++) {
-            cout << ".";
+            std::cout << ".";
         }
-        cout<<endl;
+        std::cout<<endl;
         usleep(500000); 
     }
     bool levelauth=loadLevelFile(level);
         if(!levelauth)
         {
-            cout<<"Error loading the files";
+            std::cout<<"Error loading the files";
             return 1;
         }
-    cout<<"Level loaded successfully! Initializing graphics in";
+    std::cout<<"Level loaded successfully! Initializing graphics in";
     for(int p=3;p>0;p--)
     {
-        cout<<endl<<p;
+        std::cout<<endl<<p;
         usleep(500000); 
 
     }    
     bool appauth=initializeApp();
         if(!appauth)
         {
-            cout<<"Could not initialize the SFML app file";
+            std::cout<<"Could not initialize the SFML app file";
             return 1;
         }
         else
