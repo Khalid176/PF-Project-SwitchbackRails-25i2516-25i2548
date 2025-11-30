@@ -44,10 +44,10 @@ void simulateOneTick()
     {
         moveAllTrains();
     }
-
+    queueSwitchFlips();
     applyDeferredFlips();
-    checkArrivals();
 
+    checkArrivals();
     updateSignalLights();
 
     logTrainTrace();

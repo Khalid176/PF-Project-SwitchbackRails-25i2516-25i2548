@@ -2,6 +2,8 @@
 #include "simulation_state.h"
 #include "grid.h"
 #include "io.h"
+#include <iostream>
+using namespace std;
 
 // ============================================================================
 // SWITCHES.CPP - Switch management
@@ -16,7 +18,7 @@ void updateSwitchCounters(int switch_index, int train_dir)
 
     if (switch_index < 0 || switch_index >= MAX_switches) // ADDING WHIS CHECK IN EACH BOX TO MAKE SURE THAT THE VALUE THAT IS PROVIDED IS IN BETWEEN GIVE LIMITS I.E IS FROM A TO Z
     {
-        return; // idk why return 0 is not working Faseeh if you are readin this take a look
+        return; 
     }
 
     int switch_mode = switch_data[switch_index][S_Mode]; // already used the if statments to make sure the string was converted to the need 0 1 bit formate
@@ -24,6 +26,7 @@ void updateSwitchCounters(int switch_index, int train_dir)
     if (switch_mode == 1)
     {
         switch_data[switch_index][S_K_current_golbal]++;
+
     }
     else
     {
@@ -44,6 +47,7 @@ void updateSwitchCounters(int switch_index, int train_dir)
         {
             switch_data[switch_index][S_K_current_left] = switch_data[switch_index][S_K_current_left] + 1;
         }
+
     }
 }
 
@@ -55,6 +59,7 @@ void updateSwitchCounters(int switch_index, int train_dir)
 void queueSwitchFlips()
 {
     for (int i = 0; i < MAX_switches; i++)
+
     {
         switch_flip_queue[i] = 0; /// reseting the queue this would make sure that after each tick the values of the switches in the queue goes back to zero
     }
@@ -142,6 +147,7 @@ void applyDeferredFlips()
             total_switch_flips++;
 
             switch_flip_queue[i] = 0;
+
         }
     }
 }

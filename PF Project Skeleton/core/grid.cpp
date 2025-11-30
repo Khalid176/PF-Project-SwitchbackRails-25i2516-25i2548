@@ -69,7 +69,7 @@ bool isSwitchTile(char c)
 // ----------------------------------------------------------------------------
 int getSwitchIndex(char c)
 {
-    if (isSwitchTile(c)) // insted of making another chek using the above used function here
+    if (c >= 'A' && c <= 'Z') // insted of making another chek using the above used function here
     {
         return c - 'A';
     }
