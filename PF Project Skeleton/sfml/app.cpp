@@ -293,6 +293,10 @@ void runApp() {
                     case sf::Keyboard::Escape:
                         g_window->close();
                         break;
+                    case sf::Keyboard::E: 
+                    emergency_halt_timer = 3;
+                    cout << "🚨 MANUAL EMERGENCY HALT TRIGGERED! 🚨" << endl;
+                    break;
                     default:
                     break;            
                 }
