@@ -367,7 +367,7 @@ void logSignalState()
 void writeMetrics()
 {
 
-    ofstream metrics("out/etrics.txt", ios::app);
+    ofstream metrics("out/metrics.txt", ios::app);
     if (metrics.is_open())
     {
         metrics << "Total Trains: " << Number_Of_Trains << "\n";
