@@ -9,8 +9,6 @@ using namespace std;
 // SWITCHES.CPP - Switch management
 // ============================================================================
 
-static bool temporary_queue[MAX_switches]; // as said in the instruction manual that we cannot just update a switch on the spot we would update the switches after a tick has passed this array i am creating would be responsiable for hold ing all the data pf the switches that have been updateed
-// ----------------------------------------------------------------------------
 // UPDATE SWITCH COUNTERS
 // ----------------------------------------------------------------------------
 // Increment counters for trains entering switches.
@@ -85,7 +83,7 @@ void queueSwitchFlips()
             int current_value_0 = switch_data[i][S_K_current_up];
             int limit0 = switch_data[i][S_K_up];
 
-            int current_value_1= switch_data[i][S_K_current_right];
+            int current_value_1 = switch_data[i][S_K_current_right];
             int limit1 = switch_data[i][S_K_right];
 
             int current_value_2 = switch_data[i][S_K_current_down];
@@ -115,8 +113,6 @@ void queueSwitchFlips()
         {
             switch_flip_queue[i] = 1;
         }
-        
-        
     }
 }
 
@@ -161,7 +157,7 @@ void applyDeferredFlips()
 // ----------------------------------------------------------------------------
 // Update signal colors for switches.
 // ----------------------------------------------------------------------------
-void updateSignalLights(int switch_index, int train_direction)
+void updateSignalLights()
 {
     for (int i = 0; i < MAX_switches; i++)
     {
@@ -231,14 +227,14 @@ void toggleSwitchState(int switch_index)
 {
     if (switch_index < 0 || switch_index >= MAX_switches)
     {
-        return ; // idk why return 0 is not working Faseeh if you are readin this take a look
+        return; // idk why return 0 is not working Faseeh if you are readin this take a look
     }
     int currnet_Switch_State = switch_data[switch_index][S_State];
     if (currnet_Switch_State == 1)
     {
         currnet_Switch_State = 0;
     }
-    else if (currnet_Switch_State = 0)
+    else if (currnet_Switch_State == 0)
     {
         currnet_Switch_State = 1;
     }
@@ -255,7 +251,7 @@ int getSwitchStateForDirection(int switch_index)
 
     if (switch_index < 0 || switch_index >= MAX_switches)
     {
-        return; // idk why return 0 is not working Faseeh if you are readin this take a look
+        return 0;
     }
 
     int temporary;

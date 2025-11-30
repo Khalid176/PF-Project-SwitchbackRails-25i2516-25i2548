@@ -24,5 +24,3 @@ void initializeSimulation();
 bool isSimulationComplete();
 
 #endif
-
-

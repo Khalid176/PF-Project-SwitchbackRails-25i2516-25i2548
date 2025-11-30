@@ -3,17 +3,102 @@
 #include "grid.h"
 #include "switches.h"
 #include <cstdlib>
-#include <iostream>
-using namespace std;
 
 // ============================================================================
 // TRAINS.CPP - Train logic
 // ============================================================================
 
-// Storage for planned moves (for collisions).
-static int moves[Trains_max][4]; // AS IN 2D THRE ARE ONLY 2 POSSIBLE DIRECTIONS IN WHICH A TRAINS CAN MOVE
+static int moves[Trains_max][4]; // Storage for planned moves.
 
-// Previous positions (to detect switch entry).
+int calculateDistance(int train_idx) // extra function for manhatan distance
+{
+    int CurrentX = trains_data[train_idx][T_x];
+    int CurrentY = trains_data[train_idx][T_y];
+
+    if (trains_data[train_idx][T_des_Y] == 9999 || trains_data[train_idx][T_des_Y] == -9999) // using this to make sure that the distacne is the maximun preority
+    {
+        return 9999;
+    }
+
+    int destX = trains_data[train_idx][T_des_X];
+    int destY = trains_data[train_idx][T_des_Y];
+
+    if (destX != -1 && destY != -1)
+    {
+        int temp = abs(CurrentX - destX) + abs(CurrentY - destY);
+
+        return temp;
+    }
+    return 0;
+}
+
+void assignTargetDestination(int train_idx)
+{
+    int InitialX = trains_data[train_idx][T_x];
+    int InitialY = trains_data[train_idx][T_y];
+    int bestX = -1;
+    int bestY = -1;
+    int MinimumDistance = 999999;
+
+    for (int r = 0; r < grid_rows; r++)
+    {
+        for (int c = 0; c < grid_columns; c++)
+        {
+            if (grid[r][c] == 'D')
+            {
+                int distance = abs(InitialX - c) + abs(InitialY - r);
+
+                int traffic = 0;
+                for (int j = 0; j < Number_Of_Trains; j++)
+                {
+                    if (j == train_idx)
+                        continue;
+                    if (trains_data[j][T_status] == 1 && trains_data[j][T_des_X] == c && trains_data[j][T_des_Y] == r)
+                    {
+                        traffic++;
+                    }
+                }
+
+                distance += (traffic * 500);
+
+                if (distance < MinimumDistance)
+                {
+                    MinimumDistance = distance;
+                    bestX = c;
+                    bestY = r;
+                }
+            }
+        }
+    }
+    trains_data[train_idx][T_des_X] = bestX;
+    trains_data[train_idx][T_des_Y] = bestY;
+}
+
+bool canMoveImmediate(int x, int y, int direction)
+{
+    if (direction == 0)
+    {
+        y--;
+    }
+
+    else if (direction == 1)
+    {
+        x++;
+    }
+
+    else if (direction == 2)
+    {
+        y++;
+    }
+
+    else if (direction == 3)
+    {
+        x--;
+    }
+
+    int thakgaya = (isInBounds(x, y) && isTrackTile(grid[y][x]));
+    return thakgaya;
+}
 
 // ----------------------------------------------------------------------------
 // SPAWN TRAINS FOR CURRENT TICK
@@ -22,48 +107,49 @@ static int moves[Trains_max][4]; // AS IN 2D THRE ARE ONLY 2 POSSIBLE DIRECTIONS
 // ----------------------------------------------------------------------------
 void spawnTrainsForTick()
 {
+
     for (int i = 0; i < Number_Of_Trains; i++)
     {
-        if (trains_data[i][T_status] == 0) // Pending
+        if (trains_data[i][T_status] == 0)
         {
             if (tick >= trains_data[i][TrainTICK])
             {
-                int x = trains_data[i][T_x];
-                int y = trains_data[i][T_y];
+                int XRN = trains_data[i][T_x]; // x postion right now
+                int YRN = trains_data[i][T_y]; // y position right now
+                int finalY = YRN;
 
-                
-                if (!isTrackTile(grid[y][x])) {
-                   
-                    
-                  
-                    if (y > 0 && isTrackTile(grid[y-1][x])) {
-                        y--;
-                      
-                    } 
-                  
-                    else if (y < grid_rows - 1 && isTrackTile(grid[y+1][x])) {
-                        y++;
-                    }
-                    
-                    trains_data[i][T_y] = y;
+                if (isInBounds(XRN, YRN) && isTrackTile(grid[YRN][XRN]))
+                {
+                    finalY = YRN;
                 }
-                // ---------------------------------------------------------
+
+                else if (isInBounds(XRN, YRN - 1) && isTrackTile(grid[YRN - 1][XRN]))
+                {
+                    finalY = YRN - 1;
+                }
+
+                else if (isInBounds(XRN, YRN - 2) && isTrackTile(grid[YRN - 2][XRN]))
+                {
+                    finalY = YRN - 2;
+                }
+
+                trains_data[i][T_x] = XRN;
+                trains_data[i][T_y] = finalY;
 
                 bool blocked = false;
                 for (int j = 0; j < Number_Of_Trains; j++)
                 {
-                    if (trains_data[j][T_status] == 1)
+                    if (trains_data[j][T_status] == 1 && trains_data[j][T_x] == XRN && trains_data[j][T_y] == finalY)
                     {
-                        if (x == trains_data[j][T_x] && y == trains_data[j][T_y])
-                        {
-                            blocked = true;
-                            break;
-                        }
+                        blocked = true;
+                        break;
                     }
                 }
+
                 if (!blocked)
                 {
                     trains_data[i][T_status] = 1;
+                    assignTargetDestination(i);
                 }
             }
         }
@@ -75,37 +161,74 @@ void spawnTrainsForTick()
 // ----------------------------------------------------------------------------
 // Compute next position/direction from current tile and rules.
 // ----------------------------------------------------------------------------
+
 bool determineNextPosition(int train_index, int &outX, int &outY, int &outDir)
 {
+
     int x = trains_data[train_index][T_x];
     int y = trains_data[train_index][T_y];
-    int direction = trains_data[train_index][T_direction];
+    int dir = trains_data[train_index][T_direction];
 
-    char tile = grid[y][x];
+    outDir = getNextDirection(dir, grid[y][x], train_index);
 
-    outDir = getNextDirection(direction, tile, train_index);
     outX = x;
     outY = y;
     if (outDir == 0)
     {
         outY--;
     }
+
     if (outDir == 1)
     {
         outX++;
     }
+
     if (outDir == 2)
     {
         outY++;
     }
+
     if (outDir == 3)
     {
         outX--;
     }
+
     if (isInBounds(outX, outY) && isTrackTile(grid[outY][outX]))
     {
         return true;
     }
+
+    for (int k = 1; k <= 4; k++)
+    {
+        int scanX = x;
+        int scanY = y;
+        if (outDir == 0)
+        {
+            scanY = scanY - k;
+        }
+
+        else if (outDir == 1)
+        {
+            scanX = scanX + k;
+        }
+
+        else if (outDir == 2)
+        {
+            scanY = scanY + k;
+        }
+        else if (outDir == 3)
+        {
+            scanX = scanX - k;
+        }
+
+        if (isInBounds(scanX, scanY) && isTrackTile(grid[scanY][scanX]))
+        {
+            outX = scanX;
+            outY = scanY;
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -114,130 +237,183 @@ bool determineNextPosition(int train_index, int &outX, int &outY, int &outDir)
 // ----------------------------------------------------------------------------
 // Return new direction after entering the tile.
 // ----------------------------------------------------------------------------
+
 int getNextDirection(int direction, char tile, int train_index)
 {
-    int upcomming_moves_direction = direction;
-
-    // checking tile of the grid to find out the correct direction for upcomming move
+    int next = direction;
+    int CurrentX = trains_data[train_index][T_x];
+    int CurrentY = trains_data[train_index][T_y];
+    int destY = trains_data[train_index][T_des_Y];
 
     if (tile == '/')
     {
         if (direction == 0)
         {
-            upcomming_moves_direction = 1;
+            next = 1;
         }
+
         else if (direction == 1)
         {
-            upcomming_moves_direction = 0;
+            next = 0;
         }
-        if (direction == 2)
+
+        else if (direction == 2)
         {
-            upcomming_moves_direction = 3;
+            next = 3;
         }
+
         else if (direction == 3)
         {
-            upcomming_moves_direction = 2;
+            next = 2;
         }
     }
     else if (tile == '\\')
     {
         if (direction == 0)
         {
-            upcomming_moves_direction = 3;
+            next = 3;
         }
+
         else if (direction == 3)
         {
-            upcomming_moves_direction = 0;
+            next = 0;
         }
-        else if (direction == 2)
-        {
-            upcomming_moves_direction = 1;
-        }
+
         else if (direction == 1)
         {
-            upcomming_moves_direction = 2;
+            next = 2;
+        }
+
+        else if (direction == 2)
+        {
+            next = 1;
         }
     }
     else if (tile == '+')
     {
-        upcomming_moves_direction = getSmartDirectionAtCrossing(train_index, direction);
+        next = getSmartDirectionAtCrossing(train_index, direction);
     }
 
-    // checking for the switches tiles
-
-    else if (isSwitchTile(tile)) // return true or false
+    else if (isSwitchTile(tile))
     {
-        int switch_index = getSwitchIndex(tile);
-        int state_of_switch = getSwitchStateForDirection(switch_index);
-        int type = switch_data[switch_index][S_VisualType];
+        int idx = getSwitchIndex(tile);
+        int state = getSwitchStateForDirection(idx);
+        int type = switch_data[idx][S_VisualType];
 
-        // changing direction
-        if (type == 0)
+        int DirectionProposed = next;
+
+        if (type == 0 && state == 1)
         {
-            if (state_of_switch == 1)
+            if (direction == 0)
             {
-                if (direction == 0)
-                {
-                    upcomming_moves_direction = 1;
-                }
-                else if (direction == 1)
-                {
-                    upcomming_moves_direction = 2;
-                }
-                else if (direction == 2)
-                {
-                    upcomming_moves_direction = 3;
-                }
-                else if (direction == 3)
-                {
-                    upcomming_moves_direction = 0;
-                }
+                DirectionProposed = 1;
+            }
+
+            else if (direction == 1)
+            {
+                DirectionProposed = 2;
+            }
+
+            else if (direction == 2)
+            {
+                DirectionProposed = 3;
+            }
+
+            else if (direction == 3)
+            {
+                DirectionProposed = 0;
             }
         }
-
-        else
+        else if (type == 1)
         {
-            if (state_of_switch == 0)
+            if (state == 0)
             {
                 if (direction == 0)
                 {
-                    upcomming_moves_direction = 3;
+                    DirectionProposed = 3;
                 }
+
                 else if (direction == 1)
                 {
-                    upcomming_moves_direction = 0;
+                    DirectionProposed = 0;
                 }
+
                 else if (direction == 2)
                 {
-                    upcomming_moves_direction = 1;
+                    DirectionProposed = 1;
                 }
+
                 else if (direction == 3)
                 {
-                    upcomming_moves_direction = 2;
+                    DirectionProposed = 2;
                 }
             }
             else
             {
                 if (direction == 0)
                 {
-                    upcomming_moves_direction = 1;
+                    DirectionProposed = 1;
                 }
+
                 else if (direction == 1)
                 {
-                    upcomming_moves_direction = 2;
+                    DirectionProposed = 2;
                 }
+
                 else if (direction == 2)
                 {
-                    upcomming_moves_direction = 3;
+                    DirectionProposed = 3;
                 }
+
                 else if (direction == 3)
                 {
-                    upcomming_moves_direction = 0;
+                    DirectionProposed = 0;
+                }
+            }
+        }
+
+        if (canMoveImmediate(CurrentX, CurrentY, DirectionProposed))
+        {
+            next = DirectionProposed;
+        }
+        else
+        {
+
+            next = direction;
+        }
+    }
+
+    else
+    {
+        if (direction == 1 || direction == 3)
+        {
+
+            for (int k = 1; k <= 4; k++)
+            {
+                if (isInBounds(CurrentX, CurrentY + k) && grid[CurrentY + k][CurrentX] == '|')
+                {
+
+                    if (destY == 9999 || destY > CurrentY)
+                    {
+                        return 2;
+                    }
+                }
+            }
+
+            for (int k = 1; k <= 4; k++)
+            {
+                if (isInBounds(CurrentX, CurrentY - k) && grid[CurrentY - k][CurrentX] == '|')
+                {
+                    if (destY == -9999 || destY < CurrentY)
+                    {
+                        return 0;
+                    }
                 }
             }
         }
     }
-    return upcomming_moves_direction;
+
+    return next;
 }
 
 // ----------------------------------------------------------------------------
@@ -247,58 +423,94 @@ int getNextDirection(int direction, char tile, int train_index)
 // ----------------------------------------------------------------------------
 int getSmartDirectionAtCrossing(int index, int current_direction)
 {
-    int X = -1;
-    int Y = -1;
-    int maxDistnace = -1;
 
-    int current_X = trains_data[index][T_x];
-    int current_Y = trains_data[index][T_y];
+    int CurrentX = trains_data[index][T_x];
+    int CurrentY = trains_data[index][T_y];
+    int targetX = trains_data[index][T_des_X];
+    int targetY = trains_data[index][T_des_Y];
 
-    // finding farthest destination
-    for (int r = 0; r < grid_rows; r++)
+    // if check is 9999 would prefer turning
+    if (targetY == 9999 || targetY == -9999)
     {
-        for (int c = 0; c < grid_columns; c++)
+        // Scan for a pipe
+        for (int d = 0; d < 4; d++)
         {
-            if (grid[r][c] == 'D')
+            if (abs(d - current_direction) == 2)
             {
-                int temp1 = current_X - c;
-                int temp2 = current_Y - r;
+                continue;
+            }
 
-                if (temp1 < 0)
-                {
-                    temp1 = temp1 * -1;
-                }
-                if (temp2 < 0)
-                {
-                    temp2 = temp2 * -1;
-                }
-                if ((temp1 + temp2) > maxDistnace) // shouldnt this always be true
-                {
-                    maxDistnace = temp1 + temp2;
-                    X = c;
-                    Y = r;
-                }
+            int nx = CurrentX, ny = CurrentY;
+            if (d == 0)
+            {
+                ny--;
+            }
+
+            else if (d == 1)
+            {
+                nx++;
+            }
+
+            else if (d == 2)
+            {
+                ny++;
+            }
+
+            else if (d == 3)
+            {
+                nx--;
+            }
+
+            if (isInBounds(nx, ny) && isTrackTile(grid[ny][nx]))
+            {
+                return d;
             }
         }
     }
-    if (X > current_X && current_direction != 3)
-    {
-        return 1;
-    }
-    if (X < current_X && current_direction != 1)
-    {
-        return 3;
-    }
-    if (Y > current_Y && current_direction != 0)
-    {
-        return 2;
-    }
-    if (Y < current_Y && current_direction != 2)
-    {
-        return 0;
-    }
 
-    return current_direction;
+    if (targetX == -1)
+    {
+        return current_direction;
+    }
+        
+
+    int dx[] = {0, 1, 0, -1};
+    int dy[] = {-1, 0, 1, 0};
+    int bestDir = current_direction;
+    int MinimumDistance = 999999;
+
+    for (int d = 0; d < 4; d++)
+    {
+        if (abs(d - current_direction) == 2)
+        {
+             continue;
+        }
+           
+        int nx = CurrentX + dx[d];
+        int ny = CurrentY + dy[d];
+
+        bool validPath = false;
+        for (int k = 1; k <= 4; k++)
+        {
+            if (isInBounds(CurrentX + dx[d] * k, CurrentY + dy[d] * k) &&
+                isTrackTile(grid[CurrentY + dy[d] * k][CurrentX + dx[d] * k]))
+            {
+                validPath = true;
+                break;
+            }
+        }
+
+        if (validPath)
+        {
+            int dist = abs(nx - targetX) + abs(ny - targetY);
+            if (dist < MinimumDistance)
+            {
+                MinimumDistance = dist;
+                bestDir = d;
+            }
+        }
+    }
+    return bestDir;
 }
 
 // ----------------------------------------------------------------------------
@@ -312,36 +524,27 @@ void determineAllRoutes()
     {
         for (int i = 0; i < Number_Of_Trains; i++)
         {
-            moves[i][3] = 0;
+  moves[i][3] = 0;
         }
+          
         return;
     }
     for (int i = 0; i < Number_Of_Trains; i++)
     {
         moves[i][3] = 0;
-
         if (trains_data[i][T_status] == 1)
         {
-            int x1, y1, d1;
-            if (determineNextPosition(i, x1, y1, d1))
+            int nx, ny, nd;
+            if (determineNextPosition(i, nx, ny, nd))
             {
-                moves[i][0] = x1;
-                moves[i][1] = y1;
-                moves[i][2] = d1;
+                moves[i][0] = nx;
+                moves[i][1] = ny;
+                moves[i][2] = nd;
                 moves[i][3] = 1;
             }
             else
             {
-                // 🚨 DEBUGGING: WHY DID WE CRASH? 🚨
-                int curX = trains_data[i][T_x];
-                int curY = trains_data[i][T_y];
-                cout << "❌ CRASH! Train " << i << " at (" << curX << "," << curY << ")" << endl;
-                cout << "   Standing on Tile: [" << grid[curY][curX] << "] (ASCII: " << (int)grid[curY][curX] << ")" << endl;
-                cout << "   Tried to move to: (" << x1 << "," << y1 << ")" << endl;
-                cout << "   Target Tile: [" << grid[y1][x1] << "]" << endl;
-                // ----------------------------------------
-
-                trains_data[i][T_status] = 3; // Set status to Crashed
+                trains_data[i][T_status] = 3;
                 trains_crashed++;
             }
         }
@@ -359,15 +562,36 @@ void moveAllTrains()
     {
         if (trains_data[i][T_status] == 1 && moves[i][3] == 1)
         {
+
+            int oldX = trains_data[i][T_x];
+            int oldY = trains_data[i][T_y];
+            int OldDestination = trains_data[i][T_direction];
+
+            // Update Position
             trains_data[i][T_x] = moves[i][0];
             trains_data[i][T_y] = moves[i][1];
             trains_data[i][T_direction] = moves[i][2];
 
-            char upcomming_tile = grid[moves[i][1]][moves[i][0]];
-            if (isSwitchTile(upcomming_tile))
+            // DYNAMIC REROUTING: If direction changed, find new best target
+            if (OldDestination != moves[i][2])
             {
-                int index = getSwitchIndex(upcomming_tile);
-                updateSwitchCounters(index, moves[i][2]);
+                assignTargetDestination(i); // Reset logic now that we turned
+            }
+
+            // EXIT TRIGGER for Switches
+            char tile = grid[oldY][oldX];
+            if (isSwitchTile(tile))
+            {
+                int idx = getSwitchIndex(tile);
+                updateSwitchCounters(idx, moves[i][2]);
+
+                
+                int state = getSwitchStateForDirection(idx);
+                int type = switch_data[idx][S_VisualType];
+                if (type == 0 && state == 1)
+                {
+                    trains_data[i][T_des_Y] = 9999; // Force Turn Down
+                }
             }
         }
     }
@@ -380,107 +604,83 @@ void moveAllTrains()
 // ----------------------------------------------------------------------------
 void detectCollisions()
 {
-    for (int train1 = 0; train1 < Number_Of_Trains; train1++)
+    for (int i = 0; i < Number_Of_Trains; i++)
     {
-        if (moves[train1][3] == 0)
+        if (moves[i][3] == 0)
+        {
+              continue;
+        }
+          
+        for (int k = 0; k < Number_Of_Trains; k++)
+        {
+            if (i == k)
+            {
+                continue;
+            }
+                
+            if (trains_data[k][T_status] == 1 && moves[k][3] == 0)
+            {
+                if (moves[i][0] == trains_data[k][T_x] && moves[i][1] == trains_data[k][T_y])
+                {
+                    moves[i][3] = 0;
+                }
+            }
+        }
+
+        if (moves[i][3] == 0)
         {
             continue;
         }
-        for (int train2 = train1 + 1; train2 < Number_Of_Trains; train2++)
+
+        for (int j = i + 1; j < Number_Of_Trains; j++)
         {
-            if (moves[train2][3] == 0)
+            if (moves[j][3] == 0)
             {
                 continue;
             }
 
             bool crash = false;
+            if (moves[i][0] == moves[j][0] && moves[i][1] == moves[j][1])
+            {
+                crash = true;
+            }
 
-            if ((moves[train1][0] == moves[train2][0]) && moves[train1][1] == moves[train2][1])
+            if (moves[i][0] == trains_data[j][T_x] && moves[i][1] == trains_data[j][T_y] && moves[j][0] == trains_data[i][T_x] && moves[j][1] == trains_data[i][T_y])
             {
                 crash = true;
             }
-            if (moves[train1][0] == trains_data[train2][T_x] && moves[train1][1] == trains_data[train2][T_y] && moves[train2][0] == trains_data[train1][T_x] && moves[train2][1] == trains_data[train1][T_y])
-            {
-                crash = true;
-            }
+
             if (crash)
             {
-                //  if this if condition is true a colission can occor now calculate the distance for train 1 and train 2
-                int distance1 = 0;
-                int distance2 = 0;
-
-                // FOR TRAIN 1
-                for (int r = 0; r < grid_rows; r++)
+                int d1 = calculateDistance(i);
+                int d2 = calculateDistance(j);
+                if (d1 > d2)
                 {
-                    for (int c = 0; c < grid_columns; c++)
+                    moves[j][3] = 0;
+                }
+
+                else if (d2 > d1)
+                {
+                    moves[i][3] = 0;
+                }
+
+                else
+                {
+                    if (i < j)
                     {
-                        if (grid[r][c] == 'D')
-                        {
-                            int a = trains_data[train1][T_x] - c;
-                            int b = trains_data[train1][T_y] - r;
-
-                            if (a < 0)
-                            {
-                                a = a * (-1);
-                            }
-                            if (b < 0)
-                            {
-                                b = b * (-1);
-                            }
-                            if (a + b > distance1)
-                            {
-                                distance1 = a + b;
-                            }
-                        }
+                        moves[j][3] = 0;
                     }
-                }
-                // For train 2
-                for (int r = 0; r < grid_rows; r++)
-                {
-                    for (int c = 0; c < grid_columns; c++)
+
+                    else
                     {
-                        if (grid[r][c] == 'D')
-                        {
-                            int a = trains_data[train2][T_x] - c;
-                            int b = trains_data[train2][T_y] - r;
-
-                            if (a < 0)
-                            {
-                                a = a * (-1);
-                            }
-                            if (b < 0)
-                            {
-                                b = b * (-1);
-                            }
-                            if (a + b > distance2)
-                            {
-                                distance2 = a + b;
-                            }
-                        }
+                        moves[i][3] = 0;
                     }
-                }
-                if (distance1 > distance2)
-                {
-                    moves[train2][3] = 0; // train2 waits
-                }
-                else if (distance1 < distance2)
-                {
-                    moves[train1][3] = 0; // train1 waits
-                }
-                else // same distnace crash would occour
-                {
-                    trains_data[train1][T_status] = 3;
-                    trains_data[train2][T_status] = 3;
-
-                    moves[train1][3] = 0;
-                    moves[train2][3] = 0;
-
-                    trains_crashed = trains_crashed + 2;
                 }
             }
         }
     }
 }
+
 // ----------------------------------------------------------------------------
 // CHECK ARRIVALS
 // ----------------------------------------------------------------------------
@@ -492,12 +692,9 @@ void checkArrivals()
     {
         if (trains_data[i][T_status] == 1)
         {
-            int x = trains_data[i][T_x];
-            int y = trains_data[i][T_y];
-
-            if (grid[y][x] == 'D')
+            if (grid[trains_data[i][T_y]][trains_data[i][T_x]] == 'D')
             {
-                trains_data[i][T_status] = 2; // arived as 'D' is the destination block
+                trains_data[i][T_status] = 2;
                 trains_arrived++;
             }
         }
@@ -513,9 +710,10 @@ void applyEmergencyHalt()
 {
     if (emergency_halt_timer == 0)
     {
-        emergency_halt_timer = 3; // starts the emergency halt
-    }
+          emergency_halt_timer = 3;
 }
+    }
+      
 
 // ----------------------------------------------------------------------------
 // UPDATE EMERGENCY HALT
@@ -526,6 +724,7 @@ void updateEmergencyHalt()
 {
     if (emergency_halt_timer > 0)
     {
-        emergency_halt_timer--;
+         emergency_halt_timer--;
     }
+       
 }
