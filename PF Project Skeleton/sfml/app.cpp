@@ -99,15 +99,15 @@ bool initializeApp() {
     g_text.setCharacterSize(24);
     g_text.setFillColor(sf::Color::White);
      sf::Vector2u texSize = uptile.getSize(); 
-    float scaleX = g_cellSize / texSize.x;
-    float scaleY = g_cellSize / texSize.y;
+    float scaleX = 2.2f*(g_cellSize / texSize.x);
+    float scaleY = 2.2f*(g_cellSize / texSize.y);
 
     g_tile.setScale(scaleX, scaleY);
     g_tile.setOrigin(texSize.x / 2.0f, texSize.y / 2.0f);
 
     sf::Vector2u trainSize = uptrain.getSize(); 
-    float tScaleX = g_cellSize / trainSize.x;
-    float tScaleY = g_cellSize / trainSize.y;
+    float tScaleX = 2.0f*(g_cellSize / trainSize.x);
+    float tScaleY = 2.0f*(g_cellSize / trainSize.y);
 
     g_sastaspr.setScale(tScaleX, tScaleY);
 
